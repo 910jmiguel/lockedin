@@ -23,6 +23,7 @@ const Navbar: React.FC<NavbarProps> = () => (
             <Link href="/">Home</Link>
             <Link href="/about">About</Link>
             <Link href="/account">Account</Link>
+            <Link href="/getstarted">Get Started</Link>
         </div>
     </nav>
 );
