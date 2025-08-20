@@ -24,6 +24,7 @@ const Navbar: React.FC<NavbarProps> = () => (
             <Link href="/about">About</Link>
             <Link href="/account">Account</Link>
             <Link href="/getstarted">Get Started</Link>
+            <Link href="/login">Login</Link>
         </div>
     </nav>
 );
