@@ -22,8 +22,8 @@ const Navbar: React.FC<NavbarProps> = () => (
         <div style={{ display: 'flex', gap: '1rem'}} className={"font-sans"}>
             <Link href="/">Home</Link>
             <Link href="/about">About</Link>
-            <Link href="/account">Account</Link>
-            <Link href="/getstarted">Get Started</Link>
+            <Link href="/signup">Get Started</Link>
+            <Link href="/login">Login</Link>
         </div>
     </nav>
 );
