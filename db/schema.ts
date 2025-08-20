@@ -1,7 +1,7 @@
 import { pgTable, serial, text, varchar, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createDeflate } from "zlib";
 
-export const users = pgTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -27,7 +27,7 @@ export const session = pgTable("session", {
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
 });
 
 export const account = pgTable("account", {
@@ -36,7 +36,7 @@ export const account = pgTable("account", {
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -63,7 +63,7 @@ export const verification = pgTable("verification", {
 
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(), 
-    userId: serial("user_id").references(() => users.id),
+    userId: serial("user_id").references(() => user.id),
     name: text("name").notNull(),
     schedule: varchar("location", { length: 255 }),
     professor: text("professor"),
@@ -74,7 +74,7 @@ export const courses = pgTable("courses", {
 
 export const tasks = pgTable("tasks", {
     id: serial("id").primaryKey(), 
-    userId: serial("user_id").references(() => users.id),
+    userId: serial("user_id").references(() => user.id),
     courseId: serial("course_id").references(() => courses.id),
     title: text("title").notNull(),
     description: text("description"),
@@ -86,9 +86,11 @@ export const tasks = pgTable("tasks", {
 
 export const userPreferences = pgTable("userPreferences", {
     id: serial("id"),
-    userId: serial("user_id").references(() => users.id),
+    userId: serial("user_id").references(() => user.id),
     darkMode: varchar("dark_mode", { length: 10 }).default("true"),
 });
+
+export const schema = { user, session, account, verification };
 
 // WORRY ABT THIS LATER
 // export const notes = pgTable("notes", {

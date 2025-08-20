@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth';
 
+// dummy logins
 export const signIn = async() => {
     await auth.api.signInEmail({
         body: {
