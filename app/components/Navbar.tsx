@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = () => (
         color: '#fff'
     }}>
         <Link href="/" style={{ fontWeight: 'bold', fontSize: '1.3rem'}}
-             className={"hover:bg-sky-700"}>
+             className={"hover:bg-sky-700 hover:rounded-xl hover:delay-75 p-3"}>
             🔒 | LockedIn
         </Link>
         <div style={{ display: 'flex', gap: '1rem'}} className={"font-sans"}>
