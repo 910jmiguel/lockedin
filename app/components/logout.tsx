@@ -10,7 +10,11 @@ export function Logout() {
         await authClient.signOut();
         router.push("/"); // when pressed, it goes back to the landing home page
     };
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     return (    
         <Button variant="outline" onClick={handleLogout}>
             Logout <LogOut className="size-4" />

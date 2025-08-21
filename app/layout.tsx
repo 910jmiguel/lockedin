@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+<<<<<<< Updated upstream
 import Navbar from "./components/Navbar";
 import { Toaster } from "@/app/components/ui/sonner";
+=======
+<<<<<<< HEAD
+=======
+import Navbar from "./components/Navbar";
+import { Toaster } from "@/app/components/ui/sonner";
+>>>>>>> fc256ede7d2973251dd4af7b904716f7df9cf7a1
+>>>>>>> Stashed changes
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -27,9 +30,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+<<<<<<< HEAD
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+<<<<<<< Updated upstream
         <Navbar />
+=======
+=======
+        className={`${inter.variable} antialiased`}
+      >
+        <Navbar />
+>>>>>>> fc256ede7d2973251dd4af7b904716f7df9cf7a1
+>>>>>>> Stashed changes
         {children}
         <Toaster />
       </body>

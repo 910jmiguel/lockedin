@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 import { pgTable, serial, text, varchar, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createDeflate } from "zlib";
+=======
+import { pgTable, serial, text, varchar, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+>>>>>>> Stashed changes
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -101,4 +105,20 @@ export const schema = { user, session, account, verification };
 //   content: text("content"),
 //   createdAt: timestamp("created_at").defaultNow(),
 //   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+<<<<<<< Updated upstream
 // });
+=======
+// });
+
+export const todoItems = pgTable("todo_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => user.id).notNull(),
+
+  // This doubles as the "heading" or group title (e.g., EECS2030, EECS2021)
+  groupTitle: varchar("group_title", { length: 255 }),
+
+  text: varchar("text", { length: 255 }).notNull(),
+  completed: boolean("completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+>>>>>>> Stashed changes
