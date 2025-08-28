@@ -2,22 +2,6 @@
 import { useState } from "react";
 import { useTodos } from "@/lib/hooks/useTodos";
 
-// task types
-type Task = {
-  id: number;
-  groupId: number;
-  text: string;
-  completed: boolean;
-  isOptimistic?: boolean;
-  originalId?: string;
-};
-
-type Group = {
-  id: number;
-  title: string;
-  isOptimistic?: boolean;
-};
-
 export default function Todo() {
   const {
     groups,
