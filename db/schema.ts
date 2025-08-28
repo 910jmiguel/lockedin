@@ -104,7 +104,7 @@ export const schema = { user, session, account, verification };
 
 export const todoItems = pgTable("todo_items", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => user.id).notNull(),
+  userId: text("user_id").references(() => user.id).notNull(),
 
   // This doubles as the "heading" or group title (e.g., EECS2030, EECS2021)
   groupTitle: varchar("group_title", { length: 255 }),

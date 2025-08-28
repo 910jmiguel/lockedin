@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useTodos } from "@/lib/hooks/useTodos";
 
 // task types
 type Task = {
@@ -7,31 +8,34 @@ type Task = {
   groupId: number;
   text: string;
   completed: boolean;
+  isOptimistic?: boolean;
+  originalId?: string;
 };
 
 type Group = {
   id: number;
   title: string;
+  isOptimistic?: boolean;
 };
 
 export default function Todo() {
-  const [groups, setGroups] = useState<Group[]>([
-    // { id: 1, title: "EECS2030" },
-    // { id: 2, title: "EECS2021" },
-  ]);
-
-  // Mock data for now
-  const [tasks, setTasks] = useState<Task[]>([
-    // { id: 1, groupId: 1, text: "Finish lab report", completed: false },
-    // { id: 2, groupId: 1, text: "Review lecture 3", completed: true },
-    // { id: 3, groupId: 2, text: "Read Chapter 2", completed: false },
-  ]);
+  const {
+    groups,
+    tasks,
+    isLoading,
+    isOnline,
+    addTask,
+    addGroup,
+    updateTask,
+    updateGroup,
+  } = useTodos();
 
   // toggle completed
   const toggleTask = (id: number) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      updateTask(id, { completed: !task.completed });
+    }
   };
 
   const [editingId, setEditingId] = useState<number | null>(null); // to figure out which task is in edit mode
@@ -54,10 +58,7 @@ export default function Todo() {
 
   function saveGroupEdit(id: number) {
     // Save the edited group title
-    setGroups((prev) =>
-      // If the group's id matches the one we're saving, we create a new object with the updated title
-      prev.map((g) => (g.id === id ? { ...g, title: tempGroupTitle } : g))
-    );
+    updateGroup(id, tempGroupTitle);
     setEditingGroupId(null);
     setTempGroupTitle("");
   }
@@ -70,11 +71,7 @@ export default function Todo() {
 
   // commit (save) the edit on Enter
   function saveEdit(id: number) {
-    setTasks(
-      (prev) => prev.map((t) => (t.id === id ? { ...t, text: tempText } : t)) // if task's id matches the one we are saving,
-      // create a new object then copies all the other fields so they dont get lost
-      // we override the text with the value in tempText (what the user typed)
-    );
+    updateTask(id, { text: tempText });
     setEditingId(null);
     setTempText("");
   }
@@ -91,36 +88,27 @@ export default function Todo() {
     setTempGroupTitle("");
   }
 
-  // helper function to add a task
-  function addTask(groupId: number, text: string) {
-    if (!text.trim()) return; // Don't add empty tasks
-    setTasks((prev) => [
-      ...prev, // keep existing tasks
-      {
-        id: Date.now(), // simple unique id (temp id for local UI)
-        groupId,
-        text: text.trim(),
-        completed: false, // initial state is not completed
-      },
-    ]);
-  }
-
-  // function to add a group name
-  function addGroup() {
-    if (!newGroupTitle.trim()) return; // Don't add empty groups if there is no new group title
-    setGroups((prev) => [ // Add the new group to the existing groups
-      ...prev,
-      {
-        id: Date.now(), // simple unique id (temp id for local UI)
-        title: newGroupTitle.trim(), // group title
-      },
-    ]);
-    setNewGroupTitle(""); // clear input after adding
+  // wrapper functions for the new group input
+  function handleAddGroup() {
+    addGroup(newGroupTitle);
+    setNewGroupTitle("");
   }
 
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-3">To-Do</h1>
+      <div className="flex items-center justify-between mb-3">
+        <h1 className="text-xl font-semibold">To-Do</h1>
+        <div className="flex items-center gap-2">
+          {!isOnline && (
+            <span className="text-sm text-amber-600 bg-amber-100 px-2 py-1 rounded">
+              Offline
+            </span>
+          )}
+          {isLoading && (
+            <span className="text-sm text-gray-500">Loading...</span>
+          )}
+        </div>
+      </div>
       {groups.map((group) => {
         const items = tasks.filter((task) => task.groupId === group.id);
   
@@ -143,17 +131,20 @@ export default function Todo() {
               ) : (
                 <span
                   onClick={() => startEditingGroup(group.id, group.title)}
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${group.isOptimistic ? 'opacity-60' : ''}`}
                   title="Click to edit"
                 >
                   {group.title}
+                  {group.isOptimistic && (
+                    <span className="ml-1 text-xs text-gray-400">syncing...</span>
+                  )}
                 </span>
               )}
             </h2>
             <ul className="space-y-2">
               {/* functionality for inline task editing */}
               {items.map((item) => (
-                <li key={item.id} className="flex items-center gap-2">
+                <li key={item.id} className={`flex items-center gap-2 ${item.isOptimistic ? 'opacity-60' : ''}`}>
                   <input
                     type="checkbox"
                     checked={item.completed}
@@ -182,6 +173,9 @@ export default function Todo() {
                       title="Click to edit"
                     >
                       {item.text}
+                      {item.isOptimistic && (
+                        <span className="ml-1 text-xs text-gray-400">syncing...</span>
+                      )}
                     </span>
                   )}
                 </li>
@@ -230,7 +224,7 @@ export default function Todo() {
     value={newGroupTitle}
     onChange={(e) => setNewGroupTitle(e.target.value)}
     onKeyDown={(e) => {
-      if (e.key === "Enter") addGroup();
+      if (e.key === "Enter") handleAddGroup();
       if (e.key === "Escape") setNewGroupTitle("");
     }}
     // ... styling
