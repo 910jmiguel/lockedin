@@ -16,15 +16,15 @@ type Group = {
 
 export default function Todo() {
   const [groups, setGroups] = useState<Group[]>([
-    { id: 1, title: "EECS2030" },
-    { id: 2, title: "EECS2021" },
+    // { id: 1, title: "EECS2030" },
+    // { id: 2, title: "EECS2021" },
   ]);
 
   // Mock data for now
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, groupId: 1, text: "Finish lab report", completed: false },
-    { id: 2, groupId: 1, text: "Review lecture 3", completed: true },
-    { id: 3, groupId: 2, text: "Read Chapter 2", completed: false },
+    // { id: 1, groupId: 1, text: "Finish lab report", completed: false },
+    // { id: 2, groupId: 1, text: "Review lecture 3", completed: true },
+    // { id: 3, groupId: 2, text: "Read Chapter 2", completed: false },
   ]);
 
   // toggle completed
@@ -43,6 +43,9 @@ export default function Todo() {
   // editing group states
   const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
   const [tempGroupTitle, setTempGroupTitle] = useState("");
+
+  // state for new group input
+  const [newGroupTitle, setNewGroupTitle] = useState("");
 
   function startEditingGroup(id: number, currentText: string) {
     setEditingGroupId(id);
@@ -102,12 +105,25 @@ export default function Todo() {
     ]);
   }
 
+  // function to add a group name
+  function addGroup() {
+    if (!newGroupTitle.trim()) return; // Don't add empty groups if there is no new group title
+    setGroups((prev) => [ // Add the new group to the existing groups
+      ...prev,
+      {
+        id: Date.now(), // simple unique id (temp id for local UI)
+        title: newGroupTitle.trim(), // group title
+      },
+    ]);
+    setNewGroupTitle(""); // clear input after adding
+  }
+
   return (
     <div>
       <h1 className="text-xl font-semibold mb-3">To-Do</h1>
       {groups.map((group) => {
         const items = tasks.filter((task) => task.groupId === group.id);
-
+  
         return (
           <div key={group.id} className="mb-4">
             <h2 className="text-lg font-medium mb-2">
@@ -206,6 +222,20 @@ export default function Todo() {
           </div>
         );
       })}
+
+      <div className="mb-4">
+  <input
+    type="text"
+    placeholder="New group title"
+    value={newGroupTitle}
+    onChange={(e) => setNewGroupTitle(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") addGroup();
+      if (e.key === "Escape") setNewGroupTitle("");
+    }}
+    // ... styling
+  />
+</div>
     </div>
   );
 }
