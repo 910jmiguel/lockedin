@@ -30,11 +30,6 @@ const QuickDashboard = () => {
       >
         Settings
       </Link>
-
-      <div>
-        <Todo />
-      </div>
-
     </div>
   );
 };

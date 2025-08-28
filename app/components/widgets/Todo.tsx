@@ -32,7 +32,7 @@ export default function Todo() {
 
   // toggle completed
   const toggleTask = (id: number) => {
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find((t) => t.id === id);
     if (task) {
       updateTask(id, { completed: !task.completed });
     }
@@ -111,7 +111,7 @@ export default function Todo() {
       </div>
       {groups.map((group) => {
         const items = tasks.filter((task) => task.groupId === group.id);
-  
+
         return (
           <div key={group.id} className="mb-4">
             <h2 className="text-lg font-medium mb-2">
@@ -120,9 +120,9 @@ export default function Todo() {
                   type="text"
                   value={tempGroupTitle}
                   autoFocus
-                  onChange={e => setTempGroupTitle(e.target.value)}
-                  onBlur={() => saveGroupEdit(group.id)} 
-                  onKeyDown={e => {
+                  onChange={(e) => setTempGroupTitle(e.target.value)}
+                  onBlur={() => saveGroupEdit(group.id)}
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") saveGroupEdit(group.id);
                     if (e.key === "Escape") cancelGroupEdit();
                   }}
@@ -131,12 +131,16 @@ export default function Todo() {
               ) : (
                 <span
                   onClick={() => startEditingGroup(group.id, group.title)}
-                  className={`cursor-pointer ${group.isOptimistic ? 'opacity-60' : ''}`}
+                  className={`cursor-pointer ${
+                    group.isOptimistic ? "opacity-60" : ""
+                  }`}
                   title="Click to edit"
                 >
                   {group.title}
                   {group.isOptimistic && (
-                    <span className="ml-1 text-xs text-gray-400">syncing...</span>
+                    <span className="ml-1 text-xs text-gray-400">
+                      syncing...
+                    </span>
                   )}
                 </span>
               )}
@@ -144,7 +148,12 @@ export default function Todo() {
             <ul className="space-y-2">
               {/* functionality for inline task editing */}
               {items.map((item) => (
-                <li key={item.id} className={`flex items-center gap-2 ${item.isOptimistic ? 'opacity-60' : ''}`}>
+                <li
+                  key={item.id}
+                  className={`flex items-center gap-2 ${
+                    item.isOptimistic ? "opacity-60" : ""
+                  }`}
+                >
                   <input
                     type="checkbox"
                     checked={item.completed}
@@ -174,7 +183,9 @@ export default function Todo() {
                     >
                       {item.text}
                       {item.isOptimistic && (
-                        <span className="ml-1 text-xs text-gray-400">syncing...</span>
+                        <span className="ml-1 text-xs text-gray-400">
+                          syncing...
+                        </span>
                       )}
                     </span>
                   )}
@@ -218,18 +229,18 @@ export default function Todo() {
       })}
 
       <div className="mb-4">
-  <input
-    type="text"
-    placeholder="New group title"
-    value={newGroupTitle}
-    onChange={(e) => setNewGroupTitle(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") handleAddGroup();
-      if (e.key === "Escape") setNewGroupTitle("");
-    }}
-    // ... styling
-  />
-</div>
+        <input
+          type="text"
+          placeholder="New group title"
+          value={newGroupTitle}
+          onChange={(e) => setNewGroupTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddGroup();
+            if (e.key === "Escape") setNewGroupTitle("");
+          }}
+          // ... styling
+        />
+      </div>
     </div>
   );
 }
