@@ -10,6 +10,7 @@ export default function Courses() {
         {courses.map((course) => (
           <CourseCard 
             key={course.id} 
+            courseSlug={course.slug}
             courseCode={course.courseCode} 
             name={course.name} 
             bannerColor={course.bannerColor}

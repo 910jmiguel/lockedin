@@ -1,4 +1,7 @@
+import Link from "next/link"
+
 type CourseCardProps = {
+    courseSlug: string;
     courseCode: string;
     name: string;
     bannerColor?: string;
@@ -8,8 +11,14 @@ type CourseCardProps = {
     // else show a default background color (which can be gray-500 for now)
 }
 
-const CourseCard = ({ courseCode, name, bannerColor, bannerImage }: CourseCardProps) => {
+// Utility function to generate slug from course code
+const generateSlug = (courseCode: string) => {
+  return courseCode.toLowerCase().replace(/\s+/g, '-')
+}
+
+const CourseCard = ({ courseSlug, courseCode, name, bannerColor, bannerImage }: CourseCardProps) => {
   return (
+    <Link href={`/dashboard/courses/${generateSlug(courseCode)}`}>
     <div className="bg-gray-600 text-white rounded-xl shadow-md overflow-hidden hover:bg-gray-500 transition w-full max-w-sm">
       {/* Banner */}
       {bannerImage? (
@@ -25,6 +34,7 @@ const CourseCard = ({ courseCode, name, bannerColor, bannerImage }: CourseCardPr
             <p className="text-gray-300">{name}</p>
         </div>
       </div>
+    </Link>
   )
 }
 
