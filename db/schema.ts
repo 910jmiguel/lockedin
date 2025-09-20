@@ -63,10 +63,18 @@ export const verification = pgTable("verification", {
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(), 
     userId: serial("user_id").references(() => user.id),
-    name: text("name").notNull(),
-    schedule: varchar("location", { length: 255 }),
-    professor: text("professor"),
-    semester: text("semester"),
+
+    staticCourseId: text("static_course_id"), // links to Course.id in props/courses.t
+
+    // User-customizable fields
+    professorName: text("professor_name"),
+    professorEmail: text("professor_email"),
+    description: text("description"),
+    classWebsite: text("class_website"),
+    location: text("location"),
+    officeHours: text("office_hours"),
+    semester: varchar("semester", { length: 100 }),
+
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
