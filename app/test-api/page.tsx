@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function TestAPI() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [testCourseId, setTestCourseId] = useState<string>('1'); // Dynamic course ID
+  const [testCourseId, setTestCourseId] = useState<string>("1"); // Dynamic course ID
 
   // Test data for creating a course
   const testCourseData = {
@@ -14,28 +14,28 @@ export default function TestAPI() {
     professorName: "Dr. John Smith",
     professorEmail: "jsmith@example.com",
     description: "This is a test course description for EECS 2030",
-    classWebsite: "https://example.com/course"
+    classWebsite: "https://example.com/course",
   };
 
   const makeRequest = async (url: string, method: string, body?: any) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: body ? JSON.stringify(body) : undefined,
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
+        throw new Error(data.error || "Request failed");
       }
-      
+
       setResult(data);
     } catch (err: any) {
       setError(err.message);
@@ -47,51 +47,57 @@ export default function TestAPI() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">API Testing Dashboard</h1>
-      
+
       {/* Test Buttons */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-2">
-          Test Course ID: 
-          <input 
-            type="text" 
-            value={testCourseId} 
+          Test Course ID:
+          <input
+            type="text"
+            value={testCourseId}
             onChange={(e) => setTestCourseId(e.target.value)}
             className="ml-2 px-2 py-1 border rounded text-black"
             placeholder="Enter course ID"
           />
         </label>
       </div>
-      
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <button 
-          onClick={() => makeRequest('/api/course-details', 'GET')}
+        <button
+          onClick={() => makeRequest("/api/course-details", "GET")}
           className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
           disabled={loading}
         >
           Get All Courses
         </button>
-        
-        <button 
-          onClick={() => makeRequest('/api/course-details', 'POST', testCourseData)}
+
+        <button
+          onClick={() =>
+            makeRequest("/api/course-details", "POST", testCourseData)
+          }
           className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
           disabled={loading}
         >
           Create Course
         </button>
-        
-        <button 
-          onClick={() => makeRequest(`/api/course-details/${testCourseId}`, 'GET')}
+
+        <button
+          onClick={() =>
+            makeRequest(`/api/course-details/${testCourseId}`, "GET")
+          }
           className="bg-purple-500 text-white p-3 rounded hover:bg-purple-600"
           disabled={loading}
         >
           Get Course #{testCourseId}
         </button>
-        
-        <button 
-          onClick={() => makeRequest(`/api/course-details/${testCourseId}`, 'PUT', {
-            professorName: "Dr. Updated Name",
-            description: "Updated description"
-          })}
+
+        <button
+          onClick={() =>
+            makeRequest(`/api/course-details/${testCourseId}`, "PUT", {
+              professorName: "Dr. Updated Name",
+              description: "Updated description",
+            })
+          }
           className="bg-orange-500 text-white p-3 rounded hover:bg-orange-600"
           disabled={loading}
         >
