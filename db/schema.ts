@@ -62,7 +62,7 @@ export const verification = pgTable("verification", {
 
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(), 
-    userId: serial("user_id").references(() => user.id),
+    userId: text("user_id").references(() => user.id).notNull(),
 
     staticCourseId: text("static_course_id"), // links to Course.id in props/courses.t
 
@@ -81,8 +81,8 @@ export const courses = pgTable("courses", {
 
 export const tasks = pgTable("tasks", {
     id: serial("id").primaryKey(), 
-    userId: serial("user_id").references(() => user.id),
-    courseId: serial("course_id").references(() => courses.id),
+    userId: text("user_id").references(() => user.id).notNull(),
+    courseId: integer("course_id").references(() => courses.id),
     title: text("title").notNull(),
     description: text("description"),
     dueDate: timestamp("due_date"),
@@ -93,7 +93,7 @@ export const tasks = pgTable("tasks", {
 
 export const userPreferences = pgTable("userPreferences", {
     id: serial("id"),
-    userId: serial("user_id").references(() => user.id),
+    userId: text("user_id").references(() => user.id).notNull(),
     darkMode: varchar("dark_mode", { length: 10 }).default("true"),
 });
 

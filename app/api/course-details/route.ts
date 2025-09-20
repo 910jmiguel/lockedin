@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
 import { courses } from "@/db/schema";  // Your courses table
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // GET: Fetch ALL course details for the logged-in user
 // POST: Create NEW course details for a specific course
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         const userCourses = await db
             .select() // Select all columns
             .from(courses)  // From the courses table
-            .where(eq(courses.userId, parseInt(session.user.id))) // Where userId matches current user 
+            .where(eq(courses.userId, session.user.id)) // Where userId matches current user (no parseInt needed for text)
             .orderBy(courses.createdAt);    // Order by creation date
         
         // 4. Return the courses as JSON
@@ -82,10 +82,12 @@ export async function POST(request: NextRequest) {
             .select()
             .from(courses)
             .where(
-                eq(courses.userId, parseInt(session.user.id)) &&
-                eq(courses.staticCourseId, staticCourseId)
+                and(
+                    eq(courses.userId, session.user.id),
+                    eq(courses.staticCourseId, staticCourseId)
+                )
             )
-            .limit(1)
+            .limit(1);
         
             if(existingCourse.length > 0) {
                 return NextResponse.json(
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
         const [newCourse] = await db
             .insert(courses)
             .values({
-                id: parseInt(session.user.id),   // Current user's ID
+                userId: session.user.id,   // Current user's ID
                 staticCourseId: staticCourseId.trim(),
                 professorName: professorName?.trim() || null,
                 professorEmail: professorEmail?.trim() || null,

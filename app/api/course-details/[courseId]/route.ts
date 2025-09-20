@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             .where(
                 and(
                     eq(courses.id, courseIdNumber), // Where course ID matches
-                    eq(courses.userId, parseInt(session.user.id)) // And userId matches current user 
+                    eq(courses.userId, session.user.id) // And userId matches current user (no parseInt needed)
                 )
             )
             .limit(1); // We only expect one result 
@@ -65,11 +65,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function PUT(
+/**
+ * Extract data from request body (what user wants to change)
+ * Build update object with only fields that were provided
+ * Update only records that match both ID and user ownership
+ * Check if any record was actually updated
+ */
+
   request: NextRequest,
   { params }: { params: Promise<{ courseId: string }> }
 ) {
   try {
-    // Step 1: Authentication check (same pattern)
+    // 1: Authentication check (same pattern)
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -78,11 +85,11 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Step 2: Extract courseId from URL
+    // 2: Extract courseId from URL
     const { courseId } = await params;
     const courseIdNumber = parseInt(courseId);
 
-    // Step 3: Extract update data from request body
+    // 3: Extract update data from request body
     const { 
       professorName, 
       professorEmail, 
@@ -93,7 +100,7 @@ export async function PUT(
       semester
     } = await request.json();
 
-    // Step 4: Build update object with only provided fields
+    // 4: Build update object with only provided fields
     const updateData: any = {};
     if (professorName !== undefined) updateData.professorName = professorName?.trim() || null;
     if (professorEmail !== undefined) updateData.professorEmail = professorEmail?.trim() || null;
@@ -103,19 +110,19 @@ export async function PUT(
     if (officeHours !== undefined) updateData.officeHours = officeHours?.trim() || null;
     if (semester !== undefined) updateData.semester = semester?.trim() || null;
 
-    // Step 5: Perform the update
+    // 5: Perform the update
     const [updatedCourse] = await db
       .update(courses)                          // Update courses table
       .set(updateData)                         // Set new values
       .where(
         and(
           eq(courses.id, courseIdNumber),       // Match course ID
-          eq(courses.userId, parseInt(session.user.id))   // Ensure user owns it
+          eq(courses.userId, session.user.id)   // Ensure user owns it (no parseInt needed)
         )
       )
       .returning();                            // Return updated record
 
-    // Step 6: Check if course was found and updated
+    // 6: Check if course was found and updated
     if (!updatedCourse) {
       return NextResponse.json(
         { error: "Course not found" }, 
@@ -123,7 +130,7 @@ export async function PUT(
       );
     }
 
-    // Step 7: Return updated course
+    // 7: Return updated course
     return NextResponse.json({ course: updatedCourse });
 
   } catch (error) {
@@ -135,19 +142,12 @@ export async function PUT(
   }
 }
 
-/**
- * Extract data from request body (what user wants to change)
- * Build update object with only fields that were provided
- * Update only records that match both ID and user ownership
- * Check if any record was actually updated
- */
-
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ courseId: string }> }
 ) {
   try {
-    // Step 1: Authentication check
+    // 1: Authentication check
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -156,22 +156,22 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Step 2: Extract courseId from URL
+    // 2: Extract courseId from URL
     const { courseId } = await params;
     const courseIdNumber = parseInt(courseId);
 
-    // Step 3: Delete the course
+    // 3: Delete the course
     const [deletedCourse] = await db
       .delete(courses)                         // Delete from courses table
       .where(
         and(
           eq(courses.id, courseIdNumber),      // Match course ID
-          eq(courses.userId, parseInt(session.user.id))  // Ensure user owns it
+          eq(courses.userId, session.user.id)  // Ensure user owns it (no parseInt needed)
         )
       )
       .returning();                           // Return deleted record (for confirmation)
 
-    // Step 4: Check if course was found and deleted
+    // 4: Check if course was found and deleted
     if (!deletedCourse) {
       return NextResponse.json(
         { error: "Course not found" }, 
@@ -179,7 +179,7 @@ export async function DELETE(
       );
     }
 
-    // Step 5: Return success confirmation
+    // 5: Return success confirmation
     return NextResponse.json({ 
       success: true, 
       message: "Course deleted successfully" 
@@ -194,6 +194,5 @@ export async function DELETE(
   }
 }
 
-// Double check the PUT and DELETE methods for correctness
 // After finished the routes.ts file, create the useCourseDetails.ts hook
 // See if you can work on the frontend integration next
