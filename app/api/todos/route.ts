@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
 // POST - Create a new todo item
 export async function POST(request: NextRequest) {
   try {
+    // Check if user is authenticated
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
 
     const { groupTitle, text, completed = false } = await request.json();
 
+    // Basic validation to check required fields
     if (!text || !groupTitle) {
       return NextResponse.json(
         { error: "Group title and text are required" },
@@ -51,6 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Insert the new todo into the database
     const [newTodo] = await db
       .insert(todoItems)
       .values({
