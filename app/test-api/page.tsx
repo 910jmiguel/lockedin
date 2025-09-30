@@ -1,12 +1,21 @@
 "use client";
 
+import { useCourseDetails } from "@/lib/hooks/useCourseDetails";
 import { useState } from "react";
 
 export default function TestAPI() {
   const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [testCourseId, setTestCourseId] = useState<string>("1"); // Dynamic course ID
+
+  const {
+    createCourseDetails,
+    getAllCourseDetails,
+    getCourseDetails,
+    updateCourseDetails,
+    deleteCourseDetails,
+    loading,
+    error,
+  } = useCourseDetails();
 
   // Test data for creating a course
   const testCourseData = {
@@ -17,64 +26,63 @@ export default function TestAPI() {
     classWebsite: "https://example.com/course",
   };
 
-  const makeRequest = async (url: string, method: string, body?: any) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body ? JSON.stringify(body) : undefined,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Request failed");
-      }
-
-      setResult(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">API Testing Dashboard</h1>
+    <div style={{ padding: '2rem', maxWidth: '64rem', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+        API Testing Dashboard
+      </h1>
 
       {/* Test Buttons */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
           Test Course ID:
           <input
             type="text"
             value={testCourseId}
             onChange={(e) => setTestCourseId(e.target.value)}
-            className="ml-2 px-2 py-1 border rounded text-black"
+            style={{ 
+              marginLeft: '0.5rem', 
+              padding: '0.25rem 0.5rem', 
+              border: '1px solid #ccc', 
+              borderRadius: '0.25rem', 
+              color: 'black' 
+            }}
             placeholder="Enter course ID"
           />
         </label>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '1rem', 
+        marginBottom: '2rem' 
+      }}>
         <button
-          onClick={() => makeRequest("/api/course-details", "GET")}
-          className="bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
+          onClick={() => {
+            getAllCourseDetails()
+              .then(setResult)
+              .catch(() => {});
+          }}
+          style={{
+            backgroundColor: loading ? '#ccc' : '#3b82f6',
+            color: 'white',
+            padding: '0.75rem',
+            borderRadius: '0.25rem',
+            border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer'
+          }}
           disabled={loading}
         >
           Get All Courses
         </button>
 
         <button
-          onClick={() =>
-            makeRequest("/api/course-details", "POST", testCourseData)
-          }
+          onClick={() => {
+            createCourseDetails(testCourseData)
+              .then(setResult)
+              .catch(() => {});
+          }}
           className="bg-green-500 text-white p-3 rounded hover:bg-green-600"
           disabled={loading}
         >
@@ -82,9 +90,11 @@ export default function TestAPI() {
         </button>
 
         <button
-          onClick={() =>
-            makeRequest(`/api/course-details/${testCourseId}`, "GET")
-          }
+          onClick={() => {
+            getCourseDetails(testCourseId)
+              .then(setResult)
+              .catch(() => {});
+          }}
           className="bg-purple-500 text-white p-3 rounded hover:bg-purple-600"
           disabled={loading}
         >
@@ -92,16 +102,30 @@ export default function TestAPI() {
         </button>
 
         <button
-          onClick={() =>
-            makeRequest(`/api/course-details/${testCourseId}`, "PUT", {
+          onClick={() => {
+            updateCourseDetails(testCourseId, {
               professorName: "Dr. Updated Name",
               description: "Updated description",
             })
-          }
+              .then(setResult)
+              .catch(() => {});
+          }}
           className="bg-orange-500 text-white p-3 rounded hover:bg-orange-600"
           disabled={loading}
         >
           Update Course #{testCourseId}
+        </button>
+
+        <button
+          onClick={() => {
+            deleteCourseDetails(testCourseId)
+              .then(setResult)
+              .catch(() => {});
+          }}
+          className="bg-red-500 text-white p-3 rounded hover:bg-red-600"
+          disabled={loading}
+        >
+          Delete Course #{testCourseId}
         </button>
       </div>
 
