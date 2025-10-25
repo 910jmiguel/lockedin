@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { createServerActionClient } from "@/lib/supabase-server";
 import { db } from "@/db/drizzle";
 import { courses } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -18,12 +18,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
      */
     try {
         // 1. Check if user is authenticated
-        const session = await auth.api.getSession({
-            headers: request.headers,
-        });
+        const supabase = await createServerActionClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         // 2. If no session user isn't logged in
-        if(!session) {
+        if(authError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             .where(
                 and(
                     eq(courses.id, courseIdNumber), // Where course ID matches
-                    eq(courses.userId, session.user.id) // And userId matches current user (no parseInt needed)
+                    eq(courses.userId, user.id) // And userId matches current user (no parseInt needed)
                 )
             )
             .limit(1); // We only expect one result 
@@ -77,11 +76,10 @@ export async function PUT(
 ) {
   try {
     // 1: Authentication check (same pattern)
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -117,7 +115,7 @@ export async function PUT(
       .where(
         and(
           eq(courses.id, courseIdNumber),       // Match course ID
-          eq(courses.userId, session.user.id)   // Ensure user owns it (no parseInt needed)
+          eq(courses.userId, user.id)   // Ensure user owns it (no parseInt needed)
         )
       )
       .returning();                            // Return updated record
@@ -148,11 +146,10 @@ export async function DELETE(
 ) {
   try {
     // 1: Authentication check
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -166,7 +163,7 @@ export async function DELETE(
       .where(
         and(
           eq(courses.id, courseIdNumber),      // Match course ID
-          eq(courses.userId, session.user.id)  // Ensure user owns it (no parseInt needed)
+          eq(courses.userId, user.id)  // Ensure user owns it (no parseInt needed)
         )
       )
       .returning();                           // Return deleted record (for confirmation)

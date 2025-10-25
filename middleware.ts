@@ -1,19 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { createServerClient } from '@supabase/ssr';
  
 export async function middleware(request: NextRequest) {
-	const sessionCookie = getSessionCookie(request);
- 
-    // THIS IS NOT SECURE!
-    // This is the recommended approach to optimistically redirect users
-    // We recommend handling auth checks in each page/route
-	if (!sessionCookie) {
-		return NextResponse.redirect(new URL("/", request.url));
-	}
- 
-	return NextResponse.next();
+  const response = NextResponse.next();
+  
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: any) {
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+        },
+      },
+    }
+  );
+
+  // Check auth
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Redirect to login if not authenticated
+  if (!session) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return response;
 }
  
 export const config = {
-	matcher: ["/dashboard"], // Specify the routes the middleware applies to
+	matcher: ["/dashboard/:path*"], // Protect dashboard and all sub-routes
 };

@@ -20,18 +20,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/app/components/ui/form";
-import { signUp } from "@/server/users";
 
 import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth-provider";
 
 const formSchema = z.object({
-  name: z.string().min(3),
-  email: z.string().min(2).max(50),
-  password: z.string().min(8),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export function SignupForm({
@@ -40,39 +39,51 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { signUp, signInWithGoogle } = useAuth();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  const signInWithGoogle = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: "/dashboard",
-    });
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+    } catch (error) {
+      toast.error("Failed to sign up with Google");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const { success, message } = await signUp(
-      values.email,
-      values.password,
-      values.name
-    );
 
-    if (success) {
-      toast.success(message as string);
-      router.push("/dashboard");
-    } else {
-      toast.error(message as string);
+    try {
+      const { error } = await signUp(values.email, values.password, {
+        name: values.name,
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success(
+          "Successfully signed up! Please check your email to verify your account."
+        );
+        router.push("/login");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }
 
   return (
@@ -91,7 +102,8 @@ export function SignupForm({
                     variant="outline"
                     className="w-full"
                     type="button"
-                    onClick={signInWithGoogle}
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                       <path

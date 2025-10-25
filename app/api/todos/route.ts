@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { createServerActionClient } from "@/lib/supabase-server";
 import { db } from "@/db/drizzle";
 import { todoItems } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,18 +7,17 @@ import { eq } from "drizzle-orm";
 // GET - Fetch all todos for the authenticated user
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const todos = await db
       .select()
       .from(todoItems)
-      .where(eq(todoItems.userId, session.user.id))
+      .where(eq(todoItems.userId, user.id))
       .orderBy(todoItems.createdAt);
 
     return NextResponse.json({ todos });
@@ -35,11 +34,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check if user is authenticated
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -57,7 +55,7 @@ export async function POST(request: NextRequest) {
     const [newTodo] = await db
       .insert(todoItems)
       .values({
-        userId: session.user.id,
+        userId: user.id,
         groupTitle: groupTitle.trim(),
         text: text.trim(),
         completed,

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import { Toaster } from "@/app/components/ui/sonner";
+import { AuthProvider } from "@/lib/auth-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,12 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} antialiased`}
-      >
-        <Navbar />
-        {children}
-        <Toaster />
+      <body className={`${inter.variable} antialiased`}>
+        <AuthProvider>
+          <Navbar />
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { createServerActionClient } from "@/lib/supabase-server";
 import { db } from "@/db/drizzle";
 import { todoItems } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -10,11 +10,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -34,7 +33,7 @@ export async function PUT(
       .where(
         and(
           eq(todoItems.id, todoId),
-          eq(todoItems.userId, session.user.id)
+          eq(todoItems.userId, user.id)
         )
       )
       .returning();
@@ -59,11 +58,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const supabase = await createServerActionClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -75,7 +73,7 @@ export async function DELETE(
       .where(
         and(
           eq(todoItems.id, todoId),
-          eq(todoItems.userId, session.user.id)
+          eq(todoItems.userId, user.id)
         )
       )
       .returning();

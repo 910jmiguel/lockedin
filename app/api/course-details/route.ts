@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { createServerActionClient } from "@/lib/supabase-server";
 import { db } from "@/db/drizzle";
 import { courses } from "@/db/schema";  // Your courses table
 import { eq, and } from "drizzle-orm";
@@ -17,12 +17,11 @@ export async function GET(request: NextRequest) {
      */
     try {
         // 1. Check if user is authenticated
-        const session = await auth.api.getSession({
-            headers: request.headers,
-        });
+        const supabase = await createServerActionClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         // 2. If no session user isn't logged in
-        if(!session) {
+        if(authError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
         const userCourses = await db
             .select() // Select all columns
             .from(courses)  // From the courses table
-            .where(eq(courses.userId, session.user.id)) // Where userId matches current user (no parseInt needed for text)
+            .where(eq(courses.userId, user.id)) // Where userId matches current user (no parseInt needed for text)
             .orderBy(courses.createdAt);    // Order by creation date
         
         // 4. Return the courses as JSON
@@ -49,11 +48,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         // 1. Check if user is authenticated (same as GET)
-        const session = await auth.api.getSession({
-            headers: request.headers,
-        });
+        const supabase = await createServerActionClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-        if(!session) {
+        if(authError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -83,7 +81,7 @@ export async function POST(request: NextRequest) {
             .from(courses)
             .where(
                 and(
-                    eq(courses.userId, session.user.id),
+                    eq(courses.userId, user.id),
                     eq(courses.staticCourseId, staticCourseId)
                 )
             )
@@ -100,7 +98,7 @@ export async function POST(request: NextRequest) {
         const [newCourse] = await db
             .insert(courses)
             .values({
-                userId: session.user.id,   // Current user's ID
+                userId: user.id,   // Current user's ID
                 staticCourseId: staticCourseId.trim(),
                 professorName: professorName?.trim() || null,
                 professorEmail: professorEmail?.trim() || null,
