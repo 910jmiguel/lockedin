@@ -27,37 +27,52 @@ export default function TestAPI() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '64rem', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+    <div style={{ padding: "2rem", maxWidth: "64rem", margin: "0 auto" }}>
+      <h1
+        style={{
+          fontSize: "1.875rem",
+          fontWeight: "bold",
+          marginBottom: "1.5rem",
+        }}
+      >
         API Testing Dashboard
       </h1>
 
       {/* Test Buttons */}
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+      <div style={{ marginBottom: "1rem" }}>
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.875rem",
+            fontWeight: "500",
+            marginBottom: "0.5rem",
+          }}
+        >
           Test Course ID:
           <input
             type="text"
             value={testCourseId}
             onChange={(e) => setTestCourseId(e.target.value)}
-            style={{ 
-              marginLeft: '0.5rem', 
-              padding: '0.25rem 0.5rem', 
-              border: '1px solid #ccc', 
-              borderRadius: '0.25rem', 
-              color: 'black' 
+            style={{
+              marginLeft: "0.5rem",
+              padding: "0.25rem 0.5rem",
+              border: "1px solid #ccc",
+              borderRadius: "0.25rem",
+              color: "black",
             }}
             placeholder="Enter course ID"
           />
         </label>
       </div>
 
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '1rem', 
-        marginBottom: '2rem' 
-      }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
         <button
           onClick={() => {
             getAllCourseDetails()
@@ -65,12 +80,12 @@ export default function TestAPI() {
               .catch(() => {});
           }}
           style={{
-            backgroundColor: loading ? '#ccc' : '#3b82f6',
-            color: 'white',
-            padding: '0.75rem',
-            borderRadius: '0.25rem',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer'
+            backgroundColor: loading ? "#ccc" : "#3b82f6",
+            color: "white",
+            padding: "0.75rem",
+            borderRadius: "0.25rem",
+            border: "none",
+            cursor: loading ? "not-allowed" : "pointer",
           }}
           disabled={loading}
         >

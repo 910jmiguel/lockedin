@@ -6,9 +6,6 @@ type CourseCardProps = {
     name: string;
     bannerColor?: string;
     bannerImage?: string;
-    // make it so that if bannerImage exists, show the background image
-    // else if bannerColor exists, show the background color
-    // else show a default background color (which can be gray-500 for now)
 }
 
 // Utility function to generate slug from course code
